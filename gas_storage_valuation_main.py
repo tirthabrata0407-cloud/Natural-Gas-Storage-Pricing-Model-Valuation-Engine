@@ -185,7 +185,9 @@ with tab1:
         for i in range(1, 4):
             c1, c2 = st.columns([1.2, 1])
             with c1:
-                d = st.date_input(f"Inj Date #{i}", value=date(2023, 5 + i, 15), key=f"inj_d_{i}")
+                # Calculate valid date with month wrapping
+                inj_month = 4 + i  # May (5), June (6), July (7)
+                d = st.date_input(f"Inj Date #{i}", value=date(2023, inj_month, 15), key=f"inj_d_{i}")
             with c2:
                 v = st.number_input(f"Inj Vol #{i}", value=5000 if i <= 2 else 0, step=1000, key=f"inj_v_{i}")
             inj_schedule.append({'date': d, 'volume': v})
@@ -197,7 +199,12 @@ with tab1:
         for i in range(1, 4):
             c1, c2 = st.columns([1.2, 1])
             with c1:
-                d = st.date_input(f"Wit Date #{i}", value=date(2023, 11 + i, 15), key=f"wit_d_{i}")
+                # Calculate valid date with proper year/month handling
+                # i=1: November (11), i=2: December (12), i=3: January 2024 (needs year adjustment)
+                wit_month = 10 + i  # November (11), December (12), January (13->1)
+                wit_year = 2023 if wit_month <= 12 else 2024
+                wit_month = wit_month if wit_month <= 12 else wit_month - 12
+                d = st.date_input(f"Wit Date #{i}", value=date(wit_year, wit_month, 15), key=f"wit_d_{i}")
             with c2:
                 v = st.number_input(f"Wit Vol #{i}", value=5000 if i <= 2 else 0, step=1000, key=f"wit_v_{i}")
             wit_schedule.append({'date': d, 'volume': v})
