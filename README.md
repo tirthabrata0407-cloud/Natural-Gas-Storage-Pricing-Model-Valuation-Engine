@@ -23,3 +23,4 @@ graph TD
     M -->|No| N(Calculate EOM Monthly Rental Fees)
     N --> O(Aggregate Trading Margin & Fees)
     O --> P[Output Net Contract Value & Audit Trail]
+<img width="1460" height="640" alt="image" src="https://github.com/user-attachments/assets/942b4ce7-aa74-4011-a0ee-bb295565d2f4" />
