@@ -39,14 +39,24 @@ def load_and_fit_base_model():
     
     # Fit parameters via non-linear least squares regression
     popt, _ = curve_fit(gas_price_model, df['Days'], df['Prices'], p0=[10, 0.001, 1, 0])
-    return df, start_date, gas_price_model, popt
+    
+    # Return only serializable objects (exclude the function object)
+    return df, start_date, popt
 
 try:
-    df, start_date, gas_price_model, popt = load_and_fit_base_model()
+    df, start_date, popt = load_and_fit_base_model()
     intercept_opt, slope_opt, amp_opt, phase_opt = popt
 except FileNotFoundError:
     st.error("❌ 'Nat_Gas.csv' not found. Please ensure it is located in the same directory as this script.")
     st.stop()
+except Exception as e:
+    st.error(f"❌ Error loading or fitting model: {str(e)}")
+    st.stop()
+
+def gas_price_model(t, intercept, slope, amplitude, phase):
+    """Mathematical Model: Linear Trend + Sinusoidal Annual Seasonality"""
+    omega = 2 * np.pi / 365.25
+    return intercept + slope * t + amplitude * np.sin(omega * t + phase)
 
 def get_market_price(date_input):
     """Calculates continuous predicted natural gas price for any date."""
@@ -269,7 +279,8 @@ with tab2:
     st.markdown("#### 🔍 Spot Ad-Hoc Quotation Calculator")
     c_calc1, c_calc2 = st.columns([1, 2])
     with c_calc1:
-        check_date = st.date_input("Select Target Query Date", value=max_hist_date.date() + pd.DateOffset(months=3))
+        default_future_date = pd.to_datetime(max_hist_date.date()) + pd.DateOffset(months=3)
+        check_date = st.date_input("Select Target Query Date", value=default_future_date.date())
     with c_calc2:
         estimated_spot = get_market_price(check_date)
         is_future = pd.to_datetime(check_date) > max_hist_date
